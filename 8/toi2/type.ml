@@ -10,20 +10,21 @@ type subst = (tyvar * ty) list (*インデックスに重複はないとする *
 
 exception NotFoundVarError
 exception ImplementationError
+exception UnifyFailError
 
         
-let isEqualVar (var1 : tyvar) (var2 : tyvar ) = 
+let is_equal_var (var1 : tyvar) (var2 : tyvar ) = 
   (*変数が同じものかを比較 *)
   let (Var a, Var b) = (var1, var2) in 
    a = b
 
-let rec hasIndexInSubst (sub: subst) (var: tyvar) = 
+let rec has_index_in_subst (sub: subst) (var: tyvar) = 
   (*subでvarのマッピングが存在するか *)
   match sub with 
     |[] -> false
     |(varIn, ty) :: res -> 
-      if isEqualVar varIn var then true 
-        else hasIndexInSubst res var 
+      if is_equal_var varIn var then true 
+        else has_index_in_subst res var 
 
 let rec ty_subst_var (sub: subst) (typ : ty) = 
   (*変数専用型代入* *)
@@ -60,7 +61,7 @@ let rec compose2 (sub1: subst) (sub2: subst) =
   match sub1 with 
     | [] -> sub2 
     | (var, ty) :: res -> 
-      if hasIndexInSubst sub2 var then compose2 res sub2
+      if has_index_in_subst sub2 var then compose2 res sub2
         else (var, ty) :: (compose2 res sub2)
 
 let compose (sub1: subst) (sub2: subst) = 
@@ -68,5 +69,42 @@ let compose (sub1: subst) (sub2: subst) =
   (*とりあえず代入のインデックスに重複はないとする *)
   let res1 = compose1 sub1 sub2 in 
     compose2 sub1 res1   
+
+let rec const_subst (const: (ty * ty) list) (sub : subst) =
+  (*制約に代入を適用する *)
+  match const with 
+    |[] -> []
+    |(a,b) :: res -> 
+      (ty_subst sub a, (ty_subst sub b)) 
+        :: const_subst res sub
+
+let rec has_var_in_type (typ: ty) (var: tyvar) = 
+  (*typ のなかにtyvarを含んでいるか *)
+  match typ with 
+    |TypeInt -> false
+    |TypeBool -> false
+    |TypeFun (a, b) -> 
+      has_var_in_type a var  || has_var_in_type b var 
+    |TypeVar a -> is_equal_var a var
+
+let rec ty_unify (const: (ty * ty) list) = 
+  (*制約を受け取って単一化 *)
+  match const with 
+    |[] -> []
+    |first :: res -> 
+      (match first with 
+      | (a, b) when a = b -> ty_unify res
+      | (TypeFun (a,b), TypeFun (c, d)) -> 
+        ty_unify ((a, c) :: ((b,d) :: res))
+      | (TypeVar a, b) -> ty_unify_var a b res
+      | (b, TypeVar a) -> ty_unify_var a b res
+      | x -> raise UnifyFailError)
+  and 
+  ty_unify_var (a: tyvar) (b: ty) (const : (ty * ty) list) = 
+  (*型変数がある時の処理 *)
+    if (has_var_in_type b a) then raise UnifyFailError 
+    else 
+      let abSubst = [(a, b)] in 
+      compose (ty_unify (const_subst const abSubst)) abSubst  
 
   
