@@ -5,3 +5,4 @@ type ty =
   | TypeBool
   | TypeFun of ty * ty
   | TypeVar of typevar
+
