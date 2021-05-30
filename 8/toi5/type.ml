@@ -1,3 +1,5 @@
+open Syntax
+
 type tyvar = Var of int (*idで管理 *)
 
 type ty = 
@@ -6,13 +8,22 @@ type ty =
   | TypeFun of ty * ty
   | TypeVar of tyvar
 
+type tyenv = (name * ty) list
+
+
+type type_schema = 
+  | TypeSchema of tyvar list * ty 
+
+
 type subst = (tyvar * ty) list (*インデックスに重複はないとする *)
+(* 
+type tyenv = (name * ty) list *)
 
 exception NotFoundVarError
 exception ImplementationError
 exception UnifyFailError
+exception TyError
 
-        
 let is_equal_var (var1 : tyvar) (var2 : tyvar ) = 
   (*変数が同じものかを比較 *)
   let (Var a, Var b) = (var1, var2) in 
@@ -107,4 +118,33 @@ let rec ty_unify (const: (ty * ty) list) =
       let abSubst = [(a, b)] in 
       compose (ty_unify (const_subst const abSubst)) abSubst  
 
-  
+let rec get_typevars (typ: ty) = 
+  (*型typ内にある型変数のリストを返す *)
+  match typ with 
+    |TypeInt -> []
+    |TypeBool -> []
+    |TypeFun (a, b) -> (get_typevars a) @ (get_typevars b)
+    |TypeVar a -> [a]
+
+let new_tyvar = 
+  (*新しい変数をかぶらないように得る *)
+  let used = ref 0 in 
+  fun (unit : unit) -> 
+    let now = !used in 
+      used := now +1; Var now;;
+
+let rec print_type (typ: ty) = 
+  (*型を表示 *)
+  match typ with 
+  | TypeInt -> print_string "int "
+  | TypeBool -> print_string "bool "
+  | TypeFun (a, b) -> 
+    print_string "(fun "; 
+    print_type a;
+    print_string "-> ";
+    print_type b;
+    print_string ") "
+  | TypeVar c -> 
+    let (Var i) = c in 
+    print_string "a";
+    print_int i;
