@@ -135,6 +135,12 @@ let new_tyvar =
     let now = !used in 
       used := now +1; Var now;;
 
+let print_var (var: tyvar) = 
+  (*型変数を表示 *)
+    let (Var i) = var in 
+      print_string "a";
+      print_int i
+
 let rec print_type (typ: ty) = 
   (*型を表示 *)
   match typ with 
@@ -147,9 +153,31 @@ let rec print_type (typ: ty) =
     print_type b;
     print_string ") "
   | TypeVar c -> 
-    let (Var i) = c in 
-    print_string "a";
-    print_int i
+    print_var c
+    
+
+let rec print_typevars (typevars: tyvar list) = 
+  (*型変数のリストを表示 *)
+  match typevars with 
+    | [] -> ()
+    | var :: res -> 
+      print_var var; 
+      print_string " ";
+      print_typevars res
+      
+
+let print_typeschema (schema: type_schema) = 
+  (*型スキーマを表示 *)
+  print_string "(";
+  (match schema with 
+    |TypeSchema (typeVars, typ) -> 
+      print_string "∀ " ; 
+      print_typevars typeVars ;
+      print_string ". ";
+      print_type typ 
+    |Type ty -> print_type ty 
+  );
+  print_string ")"
 
 let rec has_type_in_tyenv (env: tyenv) (tyVar: tyvar) = 
   (*型環境内にある型変数が出現するか *)
@@ -159,7 +187,7 @@ let rec has_type_in_tyenv (env: tyenv) (tyVar: tyvar) =
       let typ =  
         (match ty with 
           |Type t -> t
-          |TypeSchema (a, t) -> TypeInt (*要修正　instantiateを使って自由に出現しない型変数だけを残した型にする *)
+          |TypeSchema (a, t) -> TypeInt (*要注意 *)
         )
       in 
         if has_var_in_type typ tyVar then true 
@@ -194,3 +222,32 @@ let instantiate (schema: type_schema) =
     |TypeSchema (tyvarList, typ) ->  
       instantiate_in_1 tyvarList typ
     |Type ty -> ty
+
+
+
+let rec subst_setminus (sigma: subst) (varList: tyvar list) = 
+  (* varListに含まれる型変数の置換を消す*)
+  match sigma with 
+    |[] -> []
+    |(var, typ) ::res -> 
+      if List.mem var varList then subst_setminus res varList 
+      else (var, typ) :: (subst_setminus res varList)
+
+let tyschema_subst (sigma: subst) (schema: type_schema) = 
+  (*型スキーマに対して置換を行う *)
+  match schema with 
+    |TypeSchema (varList, typ) ->  
+      let newSigma = subst_setminus sigma varList in 
+      TypeSchema (varList, ty_subst newSigma typ)
+    |Type ty -> 
+      Type (ty_subst sigma ty)
+
+
+let rec tyenv_subst (sigma: subst) (env: tyenv)  = 
+  (*型環境に対して置換を行う *)
+  match env with 
+    |[] -> []
+    |(name, schema) ::res -> 
+      (name, tyschema_subst sigma schema) 
+        :: tyenv_subst sigma res
+      
