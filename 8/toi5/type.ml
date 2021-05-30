@@ -8,11 +8,13 @@ type ty =
   | TypeFun of ty * ty
   | TypeVar of tyvar
 
-type tyenv = (name * ty) list
-
 
 type type_schema = 
   | TypeSchema of tyvar list * ty 
+  | Type of ty 
+  
+
+type tyenv = (name * type_schema) list
 
 
 type subst = (tyvar * ty) list (*インデックスに重複はないとする *)
@@ -147,4 +149,48 @@ let rec print_type (typ: ty) =
   | TypeVar c -> 
     let (Var i) = c in 
     print_string "a";
-    print_int i;
+    print_int i
+
+let rec has_type_in_tyenv (env: tyenv) (tyVar: tyvar) = 
+  (*型環境内にある型変数が出現するか *)
+  match env with 
+    | [] -> false
+    | (name, ty) :: res -> 
+      let typ =  
+        (match ty with 
+          |Type t -> t
+          |TypeSchema (a, t) -> TypeInt (*要修正　instantiateを使って自由に出現しない型変数だけを残した型にする *)
+        )
+      in 
+        if has_var_in_type typ tyVar then true 
+        else has_type_in_tyenv res tyVar 
+        
+let rec generalize_delete (env: tyenv) (typeList: tyvar list) = 
+  (*typeListのうち，型環境内に現れるものを除く*)
+  match typeList with 
+    |[] ->  []
+    |tyVar :: res -> 
+      if has_type_in_tyenv env tyVar then generalize_delete env res 
+      else tyVar :: generalize_delete env res 
+
+let generalize (env: tyenv) (typ: ty) = 
+  (*型を型スキームに一般化する 
+    typのうち，envには現れない型変数を型変数の集合とする*)
+    let typList = get_typevars typ in
+      generalize_delete env typList 
+
+
+let rec  instantiate_in_1 (tyvarList: tyvar list) (typ: ty) = 
+  (* schemaの自由変数を一つずつ新しい型変数に入れ替える*)
+    match tyvarList with 
+      | [] -> typ
+      | oldVar :: res -> 
+        let newType = TypeVar  (new_tyvar ()) in 
+          ty_subst [(oldVar, newType)] typ
+
+let instantiate (schema: type_schema) = 
+  (*型スキーマを型へ *)
+  match schema with 
+    |TypeSchema (tyvarList, typ) ->  
+      instantiate_in_1 tyvarList typ
+    |Type ty -> ty
