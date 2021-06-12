@@ -1,4 +1,5 @@
 open Syntax
+open Typeinfer
 
 
 exception Unbound
