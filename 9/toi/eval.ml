@@ -3,6 +3,7 @@ open Typeinfer
 
 exception Unbound
 exception NotFound
+exception ConsNotMatch
 
 let empty_env = []
 let empty_type_env = []
@@ -89,7 +90,17 @@ let rec eval_expr env e =
   | ELetRec (f, x, e1, e2) -> 
     let env' = extend f (VRecFun(f, x, e1, env)) env
       in eval_expr env' e2
-
+  | EPair (e0, e1) -> 
+    VPair (eval_expr env e0, eval_expr env e1)
+  | ENil -> VNil 
+  | ECons (e0, e1) -> 
+    let v0 = eval_expr env e0 in 
+    let v1 = eval_expr env e1 in 
+      match v1 with 
+        |VNil -> VCons(v0, v1)
+        |VCons (a0, a1) -> VCons(v0, v1)
+        | x -> raise ConsNotMatch
+  
 let rec eval_command env c =
   match c with
   | CExp e -> ("-", env, eval_expr env e)
@@ -139,5 +150,5 @@ let rec find_match (p: pattern) (v: value) =
             | (x, None) -> None 
             | (Some x0, Some x1) -> 
               Some (x0@x1))
-              
+
     
