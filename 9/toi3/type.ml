@@ -60,6 +60,11 @@ let rec ty_subst (sub : subst) (typ : ty) =
       TypeFun ((ty_subst sub a), (ty_subst sub b))
     |TypeVar a -> 
       (ty_subst_var sub typ)
+    |TypePair (a, b) -> 
+      TypePair ((ty_subst sub a), (ty_subst sub b))
+    |TypeList a :: b -> 
+      (TypeList (ty_subst sub a)) :: (ty_subst sub b )
+    |TypeList [] -> TypeList [];
 
 
 let rec compose1 (sub1: subst) (sub2: subst) = 
@@ -101,6 +106,11 @@ let rec has_var_in_type (typ: ty) (var: tyvar) =
     |TypeFun (a, b) -> 
       has_var_in_type a var  || has_var_in_type b var 
     |TypeVar a -> is_equal_var a var
+    |TypePair (a, b) -> 
+      has_var_in_type a var  || has_var_in_type b var 
+    |TypeList a :: b) -> 
+      has_var_in_type a var  || has_var_in_type b var 
+    |TypeList [] -> false 
 
 let rec ty_unify (const: (ty * ty) list) = 
   (*制約を受け取って単一化 *)
@@ -129,6 +139,11 @@ let rec get_typevars (typ: ty) =
     |TypeBool -> []
     |TypeFun (a, b) -> (get_typevars a) @ (get_typevars b)
     |TypeVar a -> [a]
+    |TypePair (a, b) -> (get_typevars a) @ (get_typevars b)
+    |TypeList a :: b -> (get_typevars a) @ (get_typevars b)
+    |TypeList [] -> []
+
+
 
 let new_tyvar = 
   (*新しい変数をかぶらないように得る *)
@@ -156,6 +171,21 @@ let rec print_type (typ: ty) =
     print_string ") "
   | TypeVar c -> 
     print_var c
+  | TypePair (a, b) -> 
+    print_string "(";
+    print_type a;
+    print_string ",";
+    print_type b;
+    print_string ")"
+  | TypeList a :: b -> 
+    print_string "[";
+    print_type  a;
+    print_string ::;
+    print_type b;
+    print_string "]"
+  | TypeList [] -> print_string "[]";
+
+
     
 
 let rec print_typevars (typevars: tyvar list) = 
