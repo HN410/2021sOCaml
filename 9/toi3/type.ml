@@ -8,7 +8,7 @@ type ty =
   | TypeFun of ty * ty
   | TypeVar of tyvar
   | TypePair of ty * ty 
-  | TypeList of ty list 
+  | TypeList of ty
 
 
 type type_schema = 
@@ -62,9 +62,8 @@ let rec ty_subst (sub : subst) (typ : ty) =
       (ty_subst_var sub typ)
     |TypePair (a, b) -> 
       TypePair ((ty_subst sub a), (ty_subst sub b))
-    |TypeList a :: b -> 
-      (TypeList (ty_subst sub a)) :: (ty_subst sub b )
-    |TypeList [] -> TypeList [];
+    |TypeList a > 
+      (TypeList (ty_subst sub a)) 
 
 
 let rec compose1 (sub1: subst) (sub2: subst) = 
@@ -108,9 +107,8 @@ let rec has_var_in_type (typ: ty) (var: tyvar) =
     |TypeVar a -> is_equal_var a var
     |TypePair (a, b) -> 
       has_var_in_type a var  || has_var_in_type b var 
-    |TypeList a :: b) -> 
-      has_var_in_type a var  || has_var_in_type b var 
-    |TypeList [] -> false 
+    |TypeList a-> 
+      has_var_in_type a var
 
 let rec ty_unify (const: (ty * ty) list) = 
   (*制約を受け取って単一化 *)
@@ -140,8 +138,7 @@ let rec get_typevars (typ: ty) =
     |TypeFun (a, b) -> (get_typevars a) @ (get_typevars b)
     |TypeVar a -> [a]
     |TypePair (a, b) -> (get_typevars a) @ (get_typevars b)
-    |TypeList a :: b -> (get_typevars a) @ (get_typevars b)
-    |TypeList [] -> []
+    |TypeList a -> (get_typevars a)
 
 
 
@@ -177,13 +174,10 @@ let rec print_type (typ: ty) =
     print_string ",";
     print_type b;
     print_string ")"
-  | TypeList a :: b -> 
-    print_string "[";
+  | TypeList a -> 
     print_type  a;
-    print_string ::;
-    print_type b;
-    print_string "]"
-  | TypeList [] -> print_string "[]";
+    print_string " list "
+
 
 
     
