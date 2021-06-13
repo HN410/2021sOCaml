@@ -62,7 +62,7 @@ let rec ty_subst (sub : subst) (typ : ty) =
       (ty_subst_var sub typ)
     |TypePair (a, b) -> 
       TypePair ((ty_subst sub a), (ty_subst sub b))
-    |TypeList a > 
+    |TypeList a -> 
       (TypeList (ty_subst sub a)) 
 
 
@@ -121,6 +121,10 @@ let rec ty_unify (const: (ty * ty) list) =
         ty_unify ((a, c) :: ((b,d) :: res))
       | (TypeVar a, b) -> ty_unify_var a b res
       | (b, TypeVar a) -> ty_unify_var a b res
+      | (TypePair (a, b), TypePair(c,d) )-> 
+        ty_unify ((a, c) :: ((b,d) :: res))
+      | ((TypeList a), (TypeList b)) -> 
+        ty_unify ((a, b) :: res)
       | x -> raise UnifyFailError)
   and 
   ty_unify_var (a: tyvar) (b: ty) (const : (ty * ty) list) = 
