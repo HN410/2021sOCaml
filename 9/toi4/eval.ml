@@ -13,7 +13,7 @@ let empty_type_env = []
 let extend x v env = (x, v) :: env
 
 
-let rec lookup x env =
+let rec lookup (x: name) (env: env) =
   try List.assoc x env with Not_found -> raise Unbound
 
 
@@ -36,7 +36,7 @@ let rec find_match (p: pattern) (v: value) =
         | x -> None 
       )
     |PVar a -> 
-      Some [(a, v)]
+      Some [(a, Thunk(EConstBool true, []) )]
     |PPair (a0, a1) -> 
       (match v with 
         |VPair (b0, b1) -> find_match_2var a0 a1 b0 b1 
@@ -58,7 +58,7 @@ let rec find_match (p: pattern) (v: value) =
             | (Some x0, Some x1) -> 
               Some (x0@x1))
 
-let rec eval_expr env e =
+let rec eval_expr (env: env) (e: expr) =
   match e with
   | EConstInt i ->
     VInt i
@@ -66,12 +66,12 @@ let rec eval_expr env e =
     VBool b
   | EVar x ->
     (try
-       lookup x env
+       let Thunk(e1, env') = lookup x env in 
+       eval_expr env' e1 
      with
      | Unbound -> raise EvalErr)
   |ELet (e1, e2, e3) -> 
-    let t = eval_expr env e2 in 
-    eval_expr (extend e1 t env) e3  
+    eval_expr (extend e1 (Thunk(e2, env)) env) e3  
   | EAdd (e1,e2) ->
     let v1 = eval_expr env e1 in
     let v2 = eval_expr env e2 in
@@ -115,19 +115,20 @@ let rec eval_expr env e =
        if b then eval_expr env e2 else eval_expr env e3
      | _ -> raise EvalErr)
   | EFun (x, e) -> VFun (x, e, env)
+  | ERecFun (name1, name2, e) -> VRecFun(name1, name2, e, env )
   | EApp (e1, e2) -> 
     let v1 = eval_expr env e1 in 
-      let v2 = eval_expr env e2 in
+      let v2 = Thunk(e2, env) in
         (match v1 with 
           | VFun (x, e, oenv) -> 
             eval_expr (extend x v2 oenv) e
           | VRecFun (f, x, e, oenv) -> 
             let env' = 
-              extend x v2 (extend f (VRecFun(f, x, e, oenv)) oenv)
+              extend x v2 (extend f (Thunk(ERecFun(f, x, e), oenv)) oenv)
               in eval_expr env' e
           | _ -> raise  EvalErr)
   | ELetRec (f, x, e1, e2) -> 
-    let env' = extend f (VRecFun(f, x, e1, env)) env
+    let env' = extend f (Thunk(ERecFun(f, x, e1), env)) env
       in eval_expr env' e2
   | EPair (e0, e1) -> 
     VPair (eval_expr env e0, eval_expr env e1)
@@ -158,10 +159,10 @@ let rec eval_command env c =
   match c with
   | CExp e -> ("-", env, eval_expr env e)
   | CDecl (name,e) -> 
-    let eVal = eval_expr env e in 
+    let eVal = Thunk(e, env) in 
       let newEnv = (extend name eVal env) in
         (name, newEnv, eval_expr newEnv e)
   | CRecDecl (name1, name2, e) -> 
-    let env' = extend name1 (VRecFun(name1, name2, e, env)) env in
+    let env' = extend name1 (Thunk(ERecFun(name1, name2, e), env)) env in
       (name1, env', (VRecFun(name1, name2, e, env)))
     
