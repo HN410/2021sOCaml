@@ -1,0 +1,5 @@
+任意の入力A, Bに対して，ancestor(A, B)を計算すると，まず，
+ルール　ancestor(X, Y) :- ancestor(Z, Y), parent(X, Z).について，
+Q =ancestor(X, Y)とP = ancestor(A, B)の最汎単一化子[A ↦ X, B ↦ Y]を得る，
+これより，新たなゴールancestor(X, Y)を計算することになるが，これは初めの計算と
+同じである．よって，以降これが無限にループするため，うまく動作しない．
