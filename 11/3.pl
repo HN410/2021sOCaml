@@ -48,7 +48,15 @@ changeOnePiece(P, B, C) :- getThreeElement(B, B1, B2, x), getThreeElement(C, B1,
 win(P, B).
 
 %Pの手番で必敗か
+lose(P, B) :- isDifferentTurn(P, Q), hasThreeLine(Q, B).
 lose(P, B).
+
+%まだ空きマスがあるか
+hasEmpty([B|X]) :- inHasEmpty(B).
+hasEmpty([B|X]) :- hasEmpty(X).
+
+inHasEmpty([x|X]).
+inHasEmpty([B|X]) :- inHasEmpty(X).
 
 /*
 [[a, b, a],
