@@ -8,7 +8,9 @@ is33Matrix(B) :- getThreeElement(B, A1, A2, A3), getThreeElement(A1, A11, A12, A
 getThreeElement([A|[B|[C|[]]]], A, B, C).
 
 % Pの石が3つ並んでいるか
-hasThreeLine(P, B).
+hasThreeLine(P, B) :- hasThreeLineH(P, B).
+hasThreeLine(P, B) :- hasThreeLineV(P, B).
+hasThreeLine(P, B) :- hasThreeLineD(P, B).
 
 % Pの石が縦に3つ並んでいるか
 hasThreeLineV(P, B) :- getThreeElement(B, E1, E2, E3), inHasThreeLineV(P, E1, E2, E3).
