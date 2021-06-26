@@ -47,6 +47,9 @@ changeOnePiece(P, B, C) :- getThreeElement(B, B1, B2, x), getThreeElement(C, B1,
 %Pの手番で必勝か
 win(P, B).
 
+%Pの手番で必敗か
+lose(P, B).
+
 /*
 [[a, b, a],
  [b, b, b], 
