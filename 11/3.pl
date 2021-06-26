@@ -47,9 +47,13 @@ changeOnePiece(P, B, C) :- getThreeElement(B, B1, B2, x), getThreeElement(C, B1,
 %Pの手番で必勝か
 win(P, B).
 
-%Pの手番で必敗か
+%現在Pの相手の手番で，Pが必敗か
 lose(P, B) :- isDifferentTurn(P, Q), hasThreeLine(Q, B).
-lose(P, B).
+lose(P, B) :- hasEmpty(B), isNightmare(P, B).
+
+% PがBの盤面でどう指そうが，相手の必勝になる not(\or not) = \and
+isNightmare(P, B) :- \+inIsNightmare(P, B).
+inIsNightmare(P, B) :- isDifferentTurn(P, Q), isNextBoard(P, B, C), \+ win(Q, C).
 
 %まだ空きマスがあるか
 hasEmpty([B|X]) :- inHasEmpty(B).
@@ -57,6 +61,8 @@ hasEmpty([B|X]) :- hasEmpty(X).
 
 inHasEmpty([x|X]).
 inHasEmpty([B|X]) :- inHasEmpty(X).
+
+
 
 /*
 [[a, b, a],
