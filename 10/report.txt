@@ -1,0 +1,48 @@
+問１
+?- bloodrelative(kobo, X).
+X = kobo ;
+X = miho ;
+X = kobo ;
+X = miho ;
+X = sanae ;
+X = kobo ;
+X = miho ;
+X = sanae ;
+X = kobo ;
+X = miho ;
+false.
+?- bloodrelative(sanae, X).
+X = sanae .
+
+問２
+?- mult(z, s(s(z)), X).
+X = z.
+?- mult(s(z), s(s(z)), X).
+X = s(s(z)) .
+?- mult(s(s(z)), s(s(s(z))), X).
+X = s(s(s(s(s(s(z)))))) .
+
+問３
+?- reverse([1, 2, 4], X).
+X = [4, 2, 1].
+?- reverse([], X).
+X = [].
+?- concat([[1], [2, 3]], X).
+X = [1, 2, 3] .
+?- concat([[], [4, 5, 6]], X).
+X = [4, 5, 6] .
+?- concat([[1, 2, 3], [4, 5, 6]], X).
+X = [1, 2, 3, 4, 5, 6] .
+
+reverse, concatだけでなく，内部のみで使う別の述語を定義して実装した．
+
+問４
+?- hamilton([1, 2, 3, 4], [[1, 2], [2, 3], [2, 4]]).
+false.
+?- hamilton([1, 2, 3, 4], [[1, 2], [2, 3], [2, 4], [4, 1]]).
+true .
+?- hamilton([1], []).
+true .
+
+同様に，辺集合のなかに指定した辺があるかを返す述語，指定した２頂点のうちどちらかと指定した向きで
+つながる辺があるかを返す述語などを内部で定義して実装した．
