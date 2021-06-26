@@ -1,5 +1,9 @@
-% a, bを〇，×とその手番とする
+% a, bを〇，×とその手番とする.空白はx
 % 盤面はリストで表現
+
+%自分の手番を入力，相手の手番を出力
+isDifferentTurn(a, b).
+isDifferentTurn(b, a).
 
 % 3*3行列であるか
 is33Matrix(B) :- getThreeElement(B, A1, A2, A3), getThreeElement(A1, A11, A12, A13), getThreeElement(A2, A21, A22, A23), getThreeElement(A3, A31, A32, A33).
@@ -28,6 +32,18 @@ hasThreeLineD(P, B) :- getThreeElement(B, E1, E2, E3), hasThreeLineD1(P, E1, E2,
 hasThreeLineD(P, B) :- getThreeElement(B, E1, E2, E3), hasThreeLineD2(P, E1, E2, E3).
 hasThreeLineD1(P, E1, E2, E3) :- getThreeElement(E1, P, E12, E13), getThreeElement(E2, E21, P, E23), getThreeElement(E3, E31, E32, P).
 hasThreeLineD2(P, E1, E2, E3) :- getThreeElement(E1, E11, E12, P), getThreeElement(E2, E21, P, E23), getThreeElement(E3, P, E32, E33).
+
+% BでPが何らかの手を指した後の局面がC
+isNextBoard(P, B, C) :- inIsNextBoard(P, B, C, 0).
+
+inIsNextBoard(P, [], [], 1).
+inIsNextBoard(P, [B1|B2], [C1|C2], 0) :- changeOnePiece(P, B1, C1), inIsNextBoard(P, B2, C2, 1).
+inIsNextBoard(P, [B1|B2], [C1|C2], X) :- getThreeElement(B1, A1, A2, A3), getThreeElement(C1, A1, A2, A3), inIsNextBoard(P, B2, C2, X).
+
+changeOnePiece(P, B, C) :- getThreeElement(B, x, B2, B3), getThreeElement(C, P, B2, B3).
+changeOnePiece(P, B, C) :- getThreeElement(B, B1, x, B3), getThreeElement(C, B1, P, B3).
+changeOnePiece(P, B, C) :- getThreeElement(B, B1, B2, x), getThreeElement(C, B1, B2, P).
+
 
 
 
