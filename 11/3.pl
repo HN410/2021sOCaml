@@ -45,7 +45,8 @@ changeOnePiece(P, B, C) :- getThreeElement(B, B1, x, B3), getThreeElement(C, B1,
 changeOnePiece(P, B, C) :- getThreeElement(B, B1, B2, x), getThreeElement(C, B1, B2, P).
 
 %Pの手番で必勝か
-win(P, B).
+win(P, B):- hasThreeLine(P, B).
+win(P, B):- isDifferentTurn(P, Q), \+ hasThreeLine(Q, B), isNextBoard(P, B, C), lose(Q, C).
 
 /*
 [[a, b, a],
