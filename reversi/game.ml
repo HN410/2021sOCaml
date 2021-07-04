@@ -8,6 +8,9 @@ let corumn_n = 8
 let black_mark = "○"
 let white_mark = "●"
 let none_mark =  "-"
+let black_turn = 0
+let white_turn = 1
+
 let first_board = Board(0x1008000000L, 0x810000000L)
 
 let rec print_board_in black white now = 
@@ -25,6 +28,38 @@ let print_board (board: board) =
   (* boardをプリントする *)
   let Board(b, w) = board in 
   print_board_in b w (board_size)
+
+let print_only_board board turn = 
+  let b = (if(turn == black_turn) then Board(board, 0L)
+            else Board(0L, board)) in 
+            print_board b
+
+let legal_shift_n = 6
+let left_legal_mask = 0x7e7e7e7e7e7e7e7eL
+
+
+let rec get_legal_move_left_in left_mine mine_left_mask num = 
+  if(num == 0) then left_mine 
+  else 
+    let new_left_mine = Int64.logor left_mine (Int64.logand mine_left_mask 
+            (Int64.shift_left left_mine 1)) in 
+    get_legal_move_left_in new_left_mine mine_left_mask (num-1);;
+let get_legal_move_left other_board my_board = 
+(* 左方向だけの合法マス my_board側の手番の人がおける場所*)
+  let blank = Int64.lognot (Int64.logor my_board other_board) in 
+  let mine_left_mask = Int64.logand my_board left_legal_mask in 
+  let left_mine = Int64.logand (Int64.shift_left other_board 1)
+   mine_left_mask in 
+   let new_left_mine = get_legal_move_left_in left_mine mine_left_mask 
+     (legal_shift_n -1) in 
+      Int64.logand (Int64.shift_left new_left_mine 1) blank 
+
+
+let get_legal_move (board: board) turn = 1
+  (* turnにとって合法なマス一覧となるint64を返す *)
+
+let test_white = 0x10787820301000L
+let test_black = 0x2002045c0c0000L
 
   
 
