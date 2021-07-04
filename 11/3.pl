@@ -77,4 +77,20 @@ inHasEmpty([B|X]) :- inHasEmpty(X).
  [a, b, b],
  [b, a, a]
 ]
+[[a, x, x],
+ [b, x, x],
+ [x, x, x]
+]
+[[x, x, x],
+ [b, a, x],
+ [x, x, x]
+]
+[[x, a, x],
+ [b, x, x],
+ [x, x, x]
+]
+[[x, x, x],
+ [x, x, x],
+ [x, x, x]
+]
 */
