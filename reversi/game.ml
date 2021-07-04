@@ -36,8 +36,8 @@ let print_only_board board turn =
 
 let legal_shift_n = 6
 let horizontal_legal_mask = 0x7e7e7e7e7e7e7e7eL
-let vertical_legal_mask = 0x00FFFFFFFFFFFF00
-let diagonal_legal_mask = 0x007e7e7e7e7e7e00
+let vertical_legal_mask = 0x00ffffffffffff00L
+let diagonal_legal_mask = 0x007e7e7e7e7e7e00L
 
 let rec get_legal_move_left_in mine mine_mask num shift_n = 
   if(num == 0) then mine 
@@ -50,7 +50,7 @@ let rec get_legal_move_right_in mine mine_mask num shift_n =
   else 
     let new_mine = Int64.logor mine (Int64.logand mine_mask 
             (Int64.shift_right_logical mine shift_n)) in 
-    get_legal_move_left_in new_mine mine_mask (num-1) shift_n;;
+    get_legal_move_right_in new_mine mine_mask (num-1) shift_n;;
 
 
 let get_legal_move_left other_board my_board = 
@@ -77,12 +77,22 @@ let get_legal_move_right other_board my_board =
 let get_legal_move_up other_board my_board = 
 (* 上方向だけの合法マス my_board側の手番の人がおける場所*)
   let blank = Int64.lognot (Int64.logor my_board other_board) in 
-  let mine_right_mask = Int64.logand my_board horizontal_legal_mask in 
-  let right_mine = Int64.logand (Int64.shift_right_logical other_board 1)
-   mine_right_mask in 
-   let new_mine = get_legal_move_right_in right_mine mine_right_mask 
-     (legal_shift_n -1) 8 in 
-      Int64.logand (Int64.shift_right_logical new_mine 1) blank 
+  let mine_mask = Int64.logand my_board vertical_legal_mask in 
+  let mine = Int64.logand (Int64.shift_left other_board corumn_n)
+   mine_mask in 
+   let new_mine = get_legal_move_left_in mine mine_mask 
+     (legal_shift_n -1) corumn_n in 
+      Int64.logand (Int64.shift_left new_mine corumn_n) blank 
+
+let get_legal_move_down other_board my_board = 
+(* 下方向だけの合法マス my_board側の手番の人がおける場所*)
+  let blank = Int64.lognot (Int64.logor my_board other_board) in 
+  let mine_mask = Int64.logand my_board vertical_legal_mask in 
+  let mine = Int64.logand (Int64.shift_right_logical other_board corumn_n)
+   mine_mask in 
+   let new_mine = get_legal_move_right_in mine mine_mask 
+     (legal_shift_n -1) corumn_n in 
+      Int64.logand (Int64.shift_right_logical new_mine corumn_n) blank 
 
 
 
