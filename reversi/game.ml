@@ -153,17 +153,26 @@ let flip (board: board) newone turn =
     (if(turn = white_turn) then board else 
     let Board(a, b) = board in Board(b, a)) in 
 
-  (* let other_horizontal_mask = Int64.logand other_board horizontal_legal_mask in  *)
-  let right_ans = flip_in my_board other_board newone horizontal_legal_mask Int64.shift_right_logical get_legal_move_right_in 1 in 
-    (* (let right_other = Int64.logand (Int64.shift_right_logical newone 1)
-    other_horizontal_mask in 
-    let new_others = get_legal_move_right_in right_other other_horizontal_mask 
-      (legal_shift_n -1) 1 in 
-        let edge = Int64.logand (Int64.shift_right_logical new_others 1) my_board in
-        (if (Int64.compare Int64.zero edge) = 0 then Int64.zero
-        else new_others)) in *)
+  let right_ans = flip_in my_board other_board newone
+     horizontal_legal_mask Int64.shift_right_logical get_legal_move_right_in 1 in 
+  let left_ans = flip_in my_board other_board newone
+     horizontal_legal_mask Int64.shift_left get_legal_move_left_in 1 in 
+  let up_ans = flip_in my_board other_board newone
+     vertical_legal_mask Int64.shift_right_logical get_legal_move_right_in corumn_n in 
+  let down_ans = flip_in my_board other_board newone
+     vertical_legal_mask Int64.shift_left get_legal_move_left_in corumn_n in 
+  let rd_ans = flip_in my_board other_board newone
+     diagonal_legal_mask Int64.shift_right_logical get_legal_move_right_in (corumn_n-1) in 
+  let lu_ans = flip_in my_board other_board newone
+     diagonal_legal_mask Int64.shift_left get_legal_move_left_in (corumn_n-1) in 
+  let ld_ans = flip_in my_board other_board newone
+     diagonal_legal_mask Int64.shift_right_logical get_legal_move_right_in (corumn_n+1) in 
+  let ru_ans = flip_in my_board other_board newone
+     diagonal_legal_mask Int64.shift_left get_legal_move_left_in (corumn_n+1) in 
+  let diagonal_ans = Int64.logor (Int64.logor rd_ans ru_ans) (Int64.logor ld_ans lu_ans) in 
   
-  let ans = right_ans in 
+  let ans = Int64.logor diagonal_ans 
+    ((Int64.logor (Int64.logor right_ans left_ans) (Int64.logor up_ans down_ans))) in 
   let new_my = Int64.logor (Int64.logor my_board ans) newone in 
   let new_other = Int64.logand (Int64.lognot ans) other_board in 
   if(turn = white_turn) then Board(new_other, new_my)
@@ -172,4 +181,8 @@ let flip (board: board) newone turn =
 
 let test_white = 0x10787820301000L
 let test_black = 0x2002045c0c0000L
+let test_white_1 = 0x007e7e7e2c7e7e00L
+let test_black_1 = 0xff818181428181ffL
+
 let new_black = 0x8000000000L
+let new_black_1 = 0x10000000L
