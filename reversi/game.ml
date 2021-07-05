@@ -137,21 +137,31 @@ let get_legal_move (board: board) turn =
   Int64.logor (Int64.logor left right) (Int64.logor (Int64.logor up down) d)
 
 
+let flip_in my_board other_board newone mask shift_f legal_move_f shift_n = 
+  let other_mask = Int64.logand other_board mask in 
+    let shift_other = Int64.logand (shift_f newone shift_n)
+    other_mask in 
+    let new_others = legal_move_f shift_other other_mask 
+      (legal_shift_n -1) shift_n in 
+        let edge = Int64.logand (shift_f new_others shift_n) my_board in
+        (if (Int64.compare Int64.zero edge) = 0 then Int64.zero
+        else new_others)
+
 let flip (board: board) newone turn = 
   (*boardにnewoneを置いたときの盤面を返す*)
   let Board(other_board, my_board) = 
     (if(turn = white_turn) then board else 
     let Board(a, b) = board in Board(b, a)) in 
 
-  let other_horizontal_mask = Int64.logand other_board horizontal_legal_mask in 
-  let right_ans = 
-    (let right_other = Int64.logand (Int64.shift_right_logical newone 1)
+  (* let other_horizontal_mask = Int64.logand other_board horizontal_legal_mask in  *)
+  let right_ans = flip_in my_board other_board newone horizontal_legal_mask Int64.shift_right_logical get_legal_move_right_in 1 in 
+    (* (let right_other = Int64.logand (Int64.shift_right_logical newone 1)
     other_horizontal_mask in 
     let new_others = get_legal_move_right_in right_other other_horizontal_mask 
       (legal_shift_n -1) 1 in 
         let edge = Int64.logand (Int64.shift_right_logical new_others 1) my_board in
         (if (Int64.compare Int64.zero edge) = 0 then Int64.zero
-        else new_others)) in
+        else new_others)) in *)
   
   let ans = right_ans in 
   let new_my = Int64.logor (Int64.logor my_board ans) newone in 
