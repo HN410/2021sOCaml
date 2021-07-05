@@ -30,6 +30,7 @@ let print_board (board: board) =
   print_board_in b w (board_size)
 
 let print_only_board board turn = 
+  (* turnの手番だけの駒を表示 *)
   let b = (if(turn == black_turn) then Board(board, 0L)
             else Board(0L, board)) in 
             print_board b
@@ -135,8 +136,8 @@ let get_legal_move (board: board) turn =
   let d = get_legal_move_d other_board my_board in 
   Int64.logor (Int64.logor left right) (Int64.logor (Int64.logor up down) d)
 
-let test_white = 0x10787820301000L
-let test_black = 0x2002045c0c0000L
 
   
 
+let test_white = 0x10787820301000L
+let test_black = 0x2002045c0c0000L
