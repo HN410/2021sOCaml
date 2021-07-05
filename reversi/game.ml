@@ -127,7 +127,7 @@ let get_legal_move_d other_board my_board =
 let get_legal_move (board: board) turn = 
   (* turnにとって合法なマス一覧となるint64を返す *)
   let Board(other_board, my_board) = 
-    (if(turn = 1) then board else 
+    (if(turn = white_turn) then board else 
     let Board(a, b) = board in Board(b, a)) in 
   let left = get_legal_move_left other_board my_board in 
   let right = get_legal_move_right other_board my_board in 
@@ -137,7 +137,29 @@ let get_legal_move (board: board) turn =
   Int64.logor (Int64.logor left right) (Int64.logor (Int64.logor up down) d)
 
 
+let flip (board: board) newone turn = 
+  (*boardにnewoneを置いたときの盤面を返す*)
+  let Board(other_board, my_board) = 
+    (if(turn = white_turn) then board else 
+    let Board(a, b) = board in Board(b, a)) in 
+
+  let other_horizontal_mask = Int64.logand other_board horizontal_legal_mask in 
+  let right_ans = 
+    (let right_other = Int64.logand (Int64.shift_right_logical newone 1)
+    other_horizontal_mask in 
+    let new_others = get_legal_move_right_in right_other other_horizontal_mask 
+      (legal_shift_n -1) 1 in 
+        let edge = Int64.logand (Int64.shift_right_logical new_others 1) my_board in
+        (if (Int64.compare Int64.zero edge) = 0 then Int64.zero
+        else new_others)) in
+  
+  let ans = right_ans in 
+  let new_my = Int64.logor (Int64.logor my_board ans) newone in 
+  let new_other = Int64.logand (Int64.lognot ans) other_board in 
+  if(turn = white_turn) then Board(new_other, new_my)
+  else Board(new_my, new_other);;
   
 
 let test_white = 0x10787820301000L
 let test_black = 0x2002045c0c0000L
+let new_black = 0x8000000000L
