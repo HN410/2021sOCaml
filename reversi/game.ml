@@ -13,6 +13,12 @@ let white_turn = 1
 
 let first_board = Board(0x1008000000L, 0x810000000L)
 
+let make_board black white = 
+  Board(black, white)
+
+let get_board_tuple (board: board)  = 
+  let Board(a, b) = board in (a, b)
+
 let rec print_board_in black white now = 
   (if now mod corumn_n == 0 then print_newline ());
   if now = 0 then ()
