@@ -13,6 +13,9 @@ let white_turn = 1
 
 let first_board = Board(0x1008000000L, 0x810000000L)
 
+
+let get_another_turn turn = 1-turn 
+
 let make_board black white = 
   Board(black, white)
 

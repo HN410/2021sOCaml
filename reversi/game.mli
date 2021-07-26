@@ -9,7 +9,8 @@ val none_mark   : string
 val black_turn  : int 
 val white_turn  : int 
 
-
+val get_another_turn    : int -> int 
+(* 相手のターンに変換 *)
 val make_board          : int64 -> int64 -> board 
 (* boardをint64２つから作成 *)
 val get_board_tuple     : board -> int64 * int64
