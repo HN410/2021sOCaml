@@ -19,3 +19,7 @@ let piece_count board =
   let a4 = Int64.add a3 (Int64.shift_right_logical a3 16) in 
   let a5 = Int64.add a4 (Int64.shift_right_logical a4 32) in 
   Int64.to_int (Int64.logand a5 pc_mask3)
+
+let get_evaluation_value (board: board) (turn: int ) = 
+  (* 評価値 *)
+  
