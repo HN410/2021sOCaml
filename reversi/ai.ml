@@ -33,6 +33,9 @@ let get_evaluation_value (board: board) (turn: int ) (moves: int) =
     (* 自分の着手可能数- 相手の着手可能数 *)
            else (piece_count (get_legal_move board turn)) - 
                 (piece_count (get_legal_move board (get_another_turn turn ))) in
+  let v1 = (piece_count my_board) - (piece_count other_board) in 
+    (* 自分の駒数 - 相手の駒数 *)
+  
   let ans = v0 * eval_v0_factor in ans
 
 
