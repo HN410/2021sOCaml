@@ -135,6 +135,7 @@ let get_legal_move_d other_board my_board =
 
 let get_legal_move (board: board64) turn = 
   (* turnにとって合法なマス一覧となるint64を返す *)
+  let turn = get_another_turn turn in 
   let Board(other_board, my_board) = 
     (if(turn = white_turn) then board else 
     let Board(a, b) = board in Board(b, a)) in 
