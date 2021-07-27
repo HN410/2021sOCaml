@@ -13,4 +13,6 @@ val isMv                : aimove -> bool
 val isGiveup            : aimove -> bool 
 val getMv               : aimove -> int * int 
 
-val getAiMove           : board  
+val getAiMove           : int array array -> int -> int -> aimove
+(* 元の形式のboard, color, timeを受け取ってaimoveを返す*)
+(* timeは残り時間ms *)

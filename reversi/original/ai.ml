@@ -1,5 +1,6 @@
 open Int64
 open Game
+open Translate
 
 type aimove = Mv of int * int | Pass | GiveUp
 exception AimoveTransException
@@ -97,3 +98,14 @@ let getMv aimove =
 
 
 
+  
+
+let getAiMove (board: int array array) (color: int) (time: int) = 
+  let board64 = board_to_board64 board in 
+  let mycolor = color_to_mycolor color in 
+  let mymove = getAiMoveIn board64 mycolor time in 
+  if((Int64.compare mymove Int64.zero) = 0) then 
+    Pass
+  else 
+    let (i, j) = mymove_to_mv mymove in 
+    Mv (i, j)
