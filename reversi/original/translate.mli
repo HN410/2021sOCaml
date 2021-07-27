@@ -1,3 +1,6 @@
 open Game
 
-val int64board_to_board
+(* val board64_to_board     : board64 -> board 
+オリジナルのボードから既定のボードへ *)
+
+val board_to_board64        : int array array  -> board64 
