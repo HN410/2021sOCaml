@@ -33,7 +33,7 @@ let eval_v2_fac = 6
 
 let final_border = 50
 
-
+let minimum_score = -1111
 
 let piece_count board = 
   let a0 = Int64.sub board (Int64.logand 
@@ -76,34 +76,59 @@ let get_evaluation_value (board: board64) (turn: int ) (moves: int) =
   let ans = v0 * eval_v0_fac +  v1 * eval_v1_fac + v2 * eval_v2_fac 
     in ans 
 
-let isPass aimove = 
+let is_pass aimove = 
   match aimove with 
     | Pass -> true 
     | _ -> false 
 
-let isMv aimove = 
+let is_mv aimove = 
   match aimove with 
     | Mv (i, j) -> true 
     | _ -> false 
 
-let isGiveup aimove = 
+let is_giveup aimove = 
   match aimove with 
     | GiveUp -> true 
     | _ -> false 
 
-let getMv aimove = 
+let get_mv aimove = 
   match aimove with 
     |Mv (i, j) -> (i, j)
     | _ -> raise AimoveTransException
 
+let dc_mask = 0xffffffffL
 
-
+let rec get_ai_move_in board64 mycolor time = 
+  let legal_moves = get_legal_move board64 mycolor in 
+  if((Int64.compare legal_moves Int64.zero) = 0) then Int64.zero
+  else 
+    let (candidate, score) = search_ai_move board64 legal_moves mycolor dc_mask 32 Int64.zero minimum_score time in 
+    candidate
   
+  and 
+  search_ai_move_dc board64 legal_moves mycolor mask shift_n candidate candidate_score time = 
+    if((Int64.compare legal_moves Int64.zero) = 0) then (candidate, candidate_score) 
+    else
+      if(shift_n = 0) then 
+        (*候補手発見*)
+        (legal_moves, 0)
+      else 
+        (let shifted_mask = Int64.shift_left mask shift_n in 
+        let legal_a = Int64.logand legalmoves shifted_mask in 
+        let legal_b = Int64.logand legalmoves mask in 
+          let new_mask_a = Int64.logand shifted_mask (Int64.shift_right_logical shifted_mask (shift_n / 2)) in 
+          let new_mask_b = Int64.logand mask (Int64.shift_right_logical mask (shift_n / 2)) in 
+          let (a_c, a_s) = search_ai_move_dc board64 legal_a mycolor new_mask_a (shift_n/2) candidate candidate_score time in 
+          let (b_c, b_s) = search_ai_move_dc board64 legal_b mycolor new_mask_b (shift_n/2) candidate candidate_score time in 
+          if (a_s > b_s) then (a_c, a_s)
+          else (b_c, b_s))
+          
+        
 
-let getAiMove (board: int array array) (color: int) (time: int) = 
+let get_ai_move (board: int array array) (color: int) (time: int) = 
   let board64 = board_to_board64 board in 
   let mycolor = color_to_mycolor color in 
-  let mymove = getAiMoveIn board64 mycolor time in 
+  let mymove = get_ai_move_in board64 mycolor time in 
   if((Int64.compare mymove Int64.zero) = 0) then 
     Pass
   else 
