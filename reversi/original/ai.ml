@@ -56,7 +56,7 @@ let get_board_position_value my_board =
 
   
 
-let get_evaluation_value (board: board) (turn: int ) (moves: int) = 
+let get_evaluation_value (board: board64) (turn: int ) (moves: int) = 
   (* 評価値 *)
   let (my_board, other_board) = 
     if turn = black_turn then get_board_tuple board 
