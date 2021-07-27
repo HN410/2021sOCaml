@@ -1,6 +1,6 @@
 open Int64
 
-type board = Board of int64 * int64;;
+type board64 = Board of int64 * int64;;
 (* 順に黒，白 *)
 
 let board_size = 64
@@ -19,7 +19,7 @@ let get_another_turn turn = 1-turn
 let make_board black white = 
   Board(black, white)
 
-let get_board_tuple (board: board)  = 
+let get_board_tuple (board: board64)  = 
   let Board(a, b) = board in (a, b)
 
 let rec print_board_in black white now = 
@@ -33,7 +33,7 @@ let rec print_board_in black white now =
     else print_string none_mark);
     print_board_in black white (now -1)
 
-let print_board (board: board) = 
+let print_board (board: board64) = 
   (* boardをプリントする *)
   let Board(b, w) = board in 
   print_board_in b w (board_size)
@@ -133,7 +133,7 @@ let get_legal_move_d other_board my_board =
    
   
 
-let get_legal_move (board: board) turn = 
+let get_legal_move (board: board64) turn = 
   (* turnにとって合法なマス一覧となるint64を返す *)
   let Board(other_board, my_board) = 
     (if(turn = white_turn) then board else 
@@ -156,7 +156,7 @@ let flip_in my_board other_board newone mask shift_f legal_move_f shift_n =
         (if (Int64.compare Int64.zero edge) = 0 then Int64.zero
         else new_others)
 
-let flip (board: board) newone turn = 
+let flip (board: board64) newone turn = 
   (*boardにnewoneを置いたときの盤面を返す*)
   let Board(other_board, my_board) = 
     (if(turn = white_turn) then board else 

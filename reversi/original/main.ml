@@ -1,6 +1,8 @@
 open Int64
 open Game
 open Ai
+open Translate 
+
 
 let test_white = 0x10787820301000L
 let test_black = 0x2002045c0c0000L
@@ -16,3 +18,32 @@ print_newline();
 print_int (piece_count test_white);
 print_newline();
 print_int (get_evaluation_value test_board black_turn 20);
+
+type color = int 
+type board = color array array
+let none     = 0
+let white    = 1 
+let black    = 2
+let sentinel = 3 
+
+let init_board () =
+  let board = Array.make_matrix 10 10 none in
+    for i=0 to 9 do
+      board.(i).(0) <- sentinel ;
+      board.(i).(9) <- sentinel ;
+      board.(0).(i) <- sentinel ;
+      board.(9).(i) <- sentinel ;
+    done;
+    board.(4).(4) <- white;
+    board.(5).(5) <- white;
+    board.(4).(5) <- black;
+    board.(5).(4) <- black;
+    board
+;;
+print_board (board_to_board64 (init_board ()));;
+print_only_board (mv_to_mymove 8 1) 1 ;;
+let (a, b) = mymove_to_mv ((mv_to_mymove 8 1)) in 
+  print_int a ;
+  print_newline ();
+  print_int b;
+  print_newline ();
