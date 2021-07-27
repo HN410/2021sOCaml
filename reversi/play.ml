@@ -2,6 +2,7 @@ open Array
 open Color
 open Command
 
+open Ai
 
 type board = color array array
 
@@ -73,13 +74,17 @@ let valid_moves board color =
 
 
 let play board color =
-  let ms = valid_moves board color in
+  let ms = get_ai_move board color 0 in 
+  if(is_pass ms) then Pass 
+  else let (i, j) = get_mv ms in 
+    Mv(i, j)
+  (* let ms = valid_moves board color in
     if ms = [] then
       Pass
     else
       let k = Random.int (List.length ms) in
       let (i,j) = List.nth ms k in
-	Mv (i,j)
+	Mv (i,j) *)
 
 let count board color =
   let s = ref 0 in

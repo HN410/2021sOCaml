@@ -107,6 +107,7 @@ let rec get_ai_move_in board64 mycolor time =
   
   and 
   search_ai_move_dc board64 legal_moves mycolor mask shift_n candidate candidate_score time = 
+  (* 分割統治法で探索 *)
     if((Int64.compare legal_moves Int64.zero) = 0) then (candidate, candidate_score) 
     else
       if(shift_n = 0) then 

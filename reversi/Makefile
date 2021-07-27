@@ -9,7 +9,7 @@ endef
 export PROJ_client
 define PROJ_server
 	RESULT =reversi-serv
-	SOURCES=color.ml command.ml commandParser.mly commandLexer.mll play.ml server.ml
+	SOURCES=original/game.mli original/game.ml original/translate.mli original/translate.ml original/ai.mli original/ai.ml color.ml command.ml commandParser.mly commandLexer.mll play.ml server.ml
 endef
 export PROJ_server
 
