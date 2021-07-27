@@ -41,3 +41,9 @@ let init_board () =
     board
 ;;
 print_board (board_to_board64 (init_board ()));;
+print_only_board (mv_to_mymove 8 1) 1 ;;
+let (a, b) = mymove_to_mv ((mv_to_mymove 8 1)) in 
+  print_int a ;
+  print_newline ();
+  print_int b;
+  print_newline ();
