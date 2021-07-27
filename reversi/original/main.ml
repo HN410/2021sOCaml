@@ -15,6 +15,7 @@ let new_black_1 = 0x10000000L ;;
 
 (print_board (test_board));
 print_newline();
+print_only_board (get_legal_move test_board 0) 0;
 print_int (piece_count test_white);
 print_newline();
 print_int (get_evaluation_value test_board black_turn 20);
@@ -46,4 +47,10 @@ let (a, b) = mymove_to_mv ((mv_to_mymove 8 1)) in
   print_int a ;
   print_newline ();
   print_int b;
+  print_newline ();
+;;
+let (c,d ) = get_mv (get_ai_move (init_board ()) 1 100 ) in 
+  print_int c;
+  print_newline();
+  print_int d;
   print_newline ();

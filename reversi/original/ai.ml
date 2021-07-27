@@ -102,7 +102,7 @@ let rec get_ai_move_in board64 mycolor time =
   let legal_moves = get_legal_move board64 mycolor in 
   if((Int64.compare legal_moves Int64.zero) = 0) then Int64.zero
   else 
-    let (candidate, score) = search_ai_move board64 legal_moves mycolor dc_mask 32 Int64.zero minimum_score time in 
+    let (candidate, score) = search_ai_move_dc board64 legal_moves mycolor dc_mask 32 Int64.zero minimum_score time in 
     candidate
   
   and 
@@ -114,8 +114,8 @@ let rec get_ai_move_in board64 mycolor time =
         (legal_moves, 0)
       else 
         (let shifted_mask = Int64.shift_left mask shift_n in 
-        let legal_a = Int64.logand legalmoves shifted_mask in 
-        let legal_b = Int64.logand legalmoves mask in 
+        let legal_a = Int64.logand legal_moves shifted_mask in 
+        let legal_b = Int64.logand legal_moves mask in 
           let new_mask_a = Int64.logand shifted_mask (Int64.shift_right_logical shifted_mask (shift_n / 2)) in 
           let new_mask_b = Int64.logand mask (Int64.shift_right_logical mask (shift_n / 2)) in 
           let (a_c, a_s) = search_ai_move_dc board64 legal_a mycolor new_mask_a (shift_n/2) candidate candidate_score time in 
