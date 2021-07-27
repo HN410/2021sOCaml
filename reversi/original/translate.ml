@@ -31,3 +31,5 @@ let rec board_to_board64_in (board: board) num black white=
 let board_to_board64 (board: board ) = 
   board_to_board64_in board 1 Int64.zero Int64.zero
   
+let color_to_mycolor color = 2-color 
+ 
