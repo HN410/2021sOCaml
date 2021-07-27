@@ -1,6 +1,9 @@
 open Int64
 open Game
 
+type aimove = Mv of int * int | Pass | GiveUp
+exception AimoveTransException
+
 let pc_mask0 = 0x5555555555555555L
 let pc_mask1 = 0x3333333333333333L
 let pc_mask2 = 0x0f0f0f0f0f0f0f0fL
@@ -56,7 +59,7 @@ let get_board_position_value my_board =
 
   
 
-let get_evaluation_value (board: board) (turn: int ) (moves: int) = 
+let get_evaluation_value (board: board64) (turn: int ) (moves: int) = 
   (* 評価値 *)
   let (my_board, other_board) = 
     if turn = black_turn then get_board_tuple board 
@@ -72,5 +75,24 @@ let get_evaluation_value (board: board) (turn: int ) (moves: int) =
   let ans = v0 * eval_v0_fac +  v1 * eval_v1_fac + v2 * eval_v2_fac 
     in ans 
 
+let isPass aimove = 
+  match aimove with 
+    | Pass -> true 
+    | _ -> false 
+
+let isMv aimove = 
+  match aimove with 
+    | Mv (i, j) -> true 
+    | _ -> false 
+
+let isGiveup aimove = 
+  match aimove with 
+    | GiveUp -> true 
+    | _ -> false 
+
+let getMv aimove = 
+  match aimove with 
+    |Mv (i, j) -> (i, j)
+    | _ -> raise AimoveTransException
 
 
